@@ -24,7 +24,7 @@ def index():
     return 'Hello World!'
 
 
-@app.login('/login')
+@app.route('/login')
 def login():
     user = users.get_current_user()
     if user:

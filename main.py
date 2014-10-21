@@ -9,9 +9,10 @@ from bisect import bisect
 
 class NonsensoUsers(db.Model):
     email = db.StringProperty(required=True)
-    latest = db.IntegerProperty(required=True)
-    questions = db.TextProperty(required=True)
+    lasttime = db.IntegerProperty(required=True)
     score = db.IntegerProperty(required=True)
+    predicate = db.BooleanProperty(required=True)
+    x = db.IntegerProperty(required=True)
 
 
 # some global constants
@@ -61,6 +62,7 @@ answer = [
 
 array3232 = []
 for x in xrange(33):
+    array3232.append([])
     for y in xrange(33):
         if x == y:
             array3232[x].append(1)
@@ -112,7 +114,7 @@ app.config['DEBUG'] = True
 @app.route('/')
 def index():
     """Return a friendly HTTP greeting."""
-    return 'Hello World!'
+    return app.send_static_file('home.html')
 
 
 @app.route('/login')
@@ -132,7 +134,7 @@ def quiz():
     q.filter('email =', user.email())
     if not q.get():
         newuser = NonsensoUsers(email=user.email(),
-                                latest=int(time.time()),
+                                lasttime=int(time.time()),
                                 x=0,
                                 predicate=False,
                                 score=0)
@@ -141,7 +143,7 @@ def quiz():
     return 'entered into quiz'
 
 
-@app.route('/quizzz/<question>')
+@app.route('/quiz/<int:question>')
 def quizzz(question):
     user = users.get_current_user()
     if not user:
@@ -156,6 +158,7 @@ def quizzz(question):
                                 predicate=False,
                                 score=0)
         newuser.put()
+        punk = newuser
     if request.method == 'POST':
         if answer[int(question)] == request.form['answer']:
             if question == arr[punk.x]:
@@ -175,17 +178,17 @@ def quizzz(question):
         punk.put()
     if not punk.predicate:
         if punk.x == question or arr[punk.x] == question:
-            return app.send_static_file(punk.x + '.html')
+            return app.send_static_file(str(punk.x) + '.html')
         else:
             return redirect(url_for('quiz'))
     else:
         if question == punk.x:
-            return app.send_static_file(punk.x + '.html')
+            return app.send_static_file(str(punk.x) + '.html')
         else:
             return redirect(url_for('quiz'))
 
 
-@app.route('/quiz/<question>')
+@app.route('/quizzzz/<question>')
 def questions(question):
     print question
     user = users.get_current_user()
